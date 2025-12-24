@@ -1,0 +1,23 @@
+{
+  "rules_version": "2",
+  "service": "cloud.firestore",
+  "match": {
+    "/databases/{database}/documents": {
+      "match /barang/{document=**}": {
+        "allow": "read, write: if true"
+      },
+      "match /barang_masuk/{document=**}": {
+        "allow": "read, write: if true"
+      },
+      "match /barang_keluar/{document=**}": {
+        "allow": "read, write: if true"
+      },
+      "match /transaksi/{document=**}": {
+        "allow": "read, write: if true"
+      },
+      "match /laba_arsip/{document=**}": {
+        "allow": "read, write: if true"
+      }
+    }
+  }
+}
