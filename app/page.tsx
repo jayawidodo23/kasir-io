@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { useBarcodeScanner } from "@/hooks/use-barcode-scanner"
+import { MostSoldTrendline } from "@/components/most-sold-trendline"
 
 export default function KasirPage() {
   const barcodeInputRef = useRef<HTMLInputElement>(null)
@@ -41,14 +42,12 @@ export default function KasirPage() {
     async (barcode: string) => {
       const barang = await getByIndex<Barang>("barang", "kode_barang", barcode.trim().toUpperCase())
       if (barang) {
-        if (document.activeElement === barcodeInputRef.current) {
-          setKodeBarang(barcode)
-          setSelectedBarang(barang)
-          setShowSearch(false)
+        if (barang.stok > 0) {
+          addToCart(barang, 1)
+          setKodeBarang("")
+          setError("")
         } else {
-          if (barang.stok > 0) {
-            addToCart(barang, 1)
-          }
+          setError(`Stok ${barang.nama_barang} habis`)
         }
       }
     },
@@ -81,6 +80,19 @@ export default function KasirPage() {
             b.kode_barang.toLowerCase().includes(value.toLowerCase()) ||
             b.nama_barang.toLowerCase().includes(value.toLowerCase()),
         )
+        if (
+          results.length === 1 &&
+          (results[0].kode_barang === value.toUpperCase() ||
+            results[0].nama_barang.toLowerCase() === value.toLowerCase())
+        ) {
+          if (results[0].stok > 0) {
+            addToCart(results[0], 1)
+            setKodeBarang("")
+            setSearchResults([])
+            setShowSearch(false)
+            return
+          }
+        }
         setSearchResults(results)
         setShowSearch(results.length > 0)
       } else {
@@ -191,6 +203,7 @@ export default function KasirPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-1 space-y-4">
+          <MostSoldTrendline />
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-lg flex items-center gap-2">

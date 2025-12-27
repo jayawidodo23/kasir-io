@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { getAll, type Transaksi } from "@/lib/db"
+import { getAll, remove, type Transaksi } from "@/lib/db"
 import { formatRupiah } from "@/lib/currency"
 import { exportTransaksi } from "@/lib/excel"
 import { printNota } from "@/lib/print"
@@ -10,14 +10,23 @@ import { FirebaseStatus } from "@/components/firebase-status"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Download, Receipt, Calendar, Eye, Printer, TrendingUp } from "lucide-react"
+import { Download, Receipt, Calendar, Eye, Printer, TrendingUp, Trash2 } from "lucide-react"
 
 export default function TransaksiPage() {
   const [transaksiList, setTransaksiList] = useState<Transaksi[]>([])
   const [selectedTransaksi, setSelectedTransaksi] = useState<Transaksi | null>(null)
   const [showDetail, setShowDetail] = useState(false)
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [idToDelete, setIdToDelete] = useState<string | null>(null)
   const [filterBulan, setFilterBulan] = useState("")
 
   // Load data
@@ -80,6 +89,14 @@ export default function TransaksiPage() {
       uang_dibayar: transaksi.uang_dibayar,
       kembalian: transaksi.kembalian,
     })
+  }
+
+  // Delete transaction
+  const handleDeleteTransaction = async (id: string) => {
+    await remove("transaksi", id)
+    setShowDeleteConfirm(false)
+    setIdToDelete(null)
+    loadData()
   }
 
   return (
@@ -185,7 +202,7 @@ export default function TransaksiPage() {
               <TableBody>
                 {filteredData.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                    <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
                       Belum ada transaksi
                     </TableCell>
                   </TableRow>
@@ -200,23 +217,24 @@ export default function TransaksiPage() {
                       <TableCell className="text-right text-green-600 font-medium">
                         {formatRupiah(transaksi.laba)}
                       </TableCell>
-                      <TableCell>
-                        <div className="flex justify-center gap-1">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8"
-                            onClick={() => handleViewDetail(transaksi)}
-                          >
+                      <TableCell className="text-center">
+                        <div className="flex items-center justify-center gap-2">
+                          <Button variant="ghost" size="icon" onClick={() => handleViewDetail(transaksi)}>
                             <Eye className="h-4 w-4" />
+                          </Button>
+                          <Button variant="ghost" size="icon" onClick={() => handlePrintNota(transaksi)}>
+                            <Printer className="h-4 w-4" />
                           </Button>
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="h-8 w-8"
-                            onClick={() => handlePrintNota(transaksi)}
+                            className="text-destructive"
+                            onClick={() => {
+                              setIdToDelete(transaksi.id!)
+                              setShowDeleteConfirm(true)
+                            }}
                           >
-                            <Printer className="h-4 w-4" />
+                            <Trash2 className="h-4 w-4" />
                           </Button>
                         </div>
                       </TableCell>
@@ -290,6 +308,26 @@ export default function TransaksiPage() {
               </Button>
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Confirmation Dialog */}
+      <Dialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Hapus Transaksi?</DialogTitle>
+            <DialogDescription>
+              Tindakan ini tidak dapat dibatalkan. Menghapus transaksi tidak akan mengembalikan stok barang.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowDeleteConfirm(false)}>
+              Batal
+            </Button>
+            <Button variant="destructive" onClick={() => idToDelete && handleDeleteTransaction(idToDelete)}>
+              Hapus
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { getAll, add, update, getByIndex, type Barang, type BarangMasuk } from "@/lib/db"
+import { getAll, add, update, remove, getByIndex, type Barang, type BarangMasuk } from "@/lib/db"
 import { formatRupiah } from "@/lib/currency"
 import { exportBarangMasuk } from "@/lib/excel"
 import { PageHeader } from "@/components/page-header"
@@ -20,7 +20,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Plus, Download, ArrowDownToLine, Calendar } from "lucide-react"
+import { Plus, Download, ArrowDownToLine, Calendar, Trash2 } from "lucide-react"
 
 export default function BarangMasukPage() {
   const [dataList, setDataList] = useState<BarangMasuk[]>([])
@@ -31,6 +31,9 @@ export default function BarangMasukPage() {
   const [hargaBeli, setHargaBeli] = useState("")
   const [error, setError] = useState("")
   const [filterBulan, setFilterBulan] = useState("")
+
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [itemToDelete, setItemToDelete] = useState<BarangMasuk | null>(null)
 
   const loadData = async () => {
     const masuk = await getAll<BarangMasuk>("barang_masuk")
@@ -103,6 +106,20 @@ export default function BarangMasukPage() {
     setJumlah("")
     setHargaBeli("")
     setError("")
+    loadData()
+  }
+
+  const handleDelete = async (item: BarangMasuk) => {
+    await remove("barang_masuk", item.id!)
+
+    // Adjust stock back
+    const barang = await getByIndex<Barang>("barang", "kode_barang", item.kode_barang)
+    if (barang) {
+      await update("barang", { ...barang, stok: Math.max(0, barang.stok - item.jumlah) })
+    }
+
+    setShowDeleteConfirm(false)
+    setItemToDelete(null)
     loadData()
   }
 
@@ -194,24 +211,38 @@ export default function BarangMasukPage() {
                   <TableHead className="text-right">Jumlah</TableHead>
                   <TableHead className="text-right">Harga Beli</TableHead>
                   <TableHead className="text-right">Total</TableHead>
+                  <TableHead className="text-center w-20">Aksi</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredData.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
-                      Belum ada data barang masuk
+                    <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                      Tidak ada data barang masuk
                     </TableCell>
                   </TableRow>
                 ) : (
                   filteredData.map((item) => (
                     <TableRow key={item.id}>
                       <TableCell className="text-sm">{item.tanggal}</TableCell>
-                      <TableCell className="font-mono">{item.kode_barang}</TableCell>
-                      <TableCell className="font-medium">{item.nama_barang}</TableCell>
+                      <TableCell className="font-mono text-xs">{item.kode_barang}</TableCell>
+                      <TableCell>{item.nama_barang}</TableCell>
                       <TableCell className="text-right">{item.jumlah}</TableCell>
                       <TableCell className="text-right">{formatRupiah(item.harga_beli)}</TableCell>
                       <TableCell className="text-right font-medium">{formatRupiah(item.total_harga)}</TableCell>
+                      <TableCell className="text-center">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-destructive"
+                          onClick={() => {
+                            setItemToDelete(item)
+                            setShowDeleteConfirm(true)
+                          }}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </TableCell>
                     </TableRow>
                   ))
                 )}
@@ -284,6 +315,25 @@ export default function BarangMasukPage() {
               Batal
             </Button>
             <Button onClick={handleSave}>Simpan</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Hapus Riwayat Barang Masuk?</DialogTitle>
+            <DialogDescription>
+              Tindakan ini akan mengurangi stok barang sebanyak jumlah yang dihapus.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowDeleteConfirm(false)}>
+              Batal
+            </Button>
+            <Button variant="destructive" onClick={() => itemToDelete && handleDelete(itemToDelete)}>
+              Hapus & Sesuaikan Stok
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

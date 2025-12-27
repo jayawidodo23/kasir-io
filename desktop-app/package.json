@@ -1,7 +1,7 @@
 {
-  "name": "0-9-kasir-desktop",
+  "name": "kasir-app",
   "version": "0.1.0",
-  "main": "http://localhost:3000",
+  "main": "https://kasir-io.vercel.app",
   "window": {
     "title": "Kasir App",
     "icon": "public/favicon.ico",

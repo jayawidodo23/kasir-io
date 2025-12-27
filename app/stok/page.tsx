@@ -150,7 +150,17 @@ export default function StokPage() {
       if (editingId) {
         await update("barang", { ...barangData, id: editingId })
       } else {
-        await add("barang", barangData)
+        const newId = await add("barang", barangData)
+        if (stok > 0) {
+          await add("barang_masuk", {
+            tanggal: new Date().toLocaleString("id-ID"),
+            kode_barang: barangData.kode_barang,
+            nama_barang: barangData.nama_barang,
+            jumlah: stok,
+            harga_beli: hargaBeli,
+            total_harga: stok * hargaBeli,
+          })
+        }
       }
       setShowDialog(false)
       loadData()
