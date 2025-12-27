@@ -6,6 +6,8 @@
     "title": "Kasir App",
     "icon": "public/favicon.ico",
     "width": 1200,
-    "height": 800
+    "height": 800,
+    "toolbar": false,
+    "frame": true
   }
 }
