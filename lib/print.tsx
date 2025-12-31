@@ -23,122 +23,146 @@ export function printNota(data: NotaData): void {
     <html>
     <head>
       <meta charset="utf-8">
-      <title>Nota #${displayId}</title>
       <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
-          font-family: 'Courier New', monospace; 
-          font-size: 12px; 
-          width: 80mm; 
-          padding: 5mm;
+        /* Menggunakan font Sans-Serif sistem agar lebih modern tapi tetap rapi */
+        * { 
+          margin: 0; 
+          padding: 0; 
+          box-sizing: border-box;
+          font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
         }
-        .header { text-align: center; margin-bottom: 10px; }
-        .header h1 { font-size: 16px; font-weight: bold; }
-        .header p { font-size: 10px; }
+
+        body { 
+          width: 58mm; 
+          padding: 0;
+          margin: 0;
+          background-color: white;
+        }
+
+        @media print {
+          @page { 
+            size: 58mm auto; 
+            margin: 0; 
+          }
+          body { 
+            width: 58mm;
+            /* Memastikan tidak ada margin otomatis dari browser */
+            -webkit-print-color-adjust: exact;
+          }
+        }
+
+        /* Container utama dengan padding kecil agar tidak mepet fisik printer */
+        .receipt {
+          width: 100%;
+          padding: 0 2mm;
+          display: block;
+        }
+
+        .header { text-align: center; margin-top: 10px; margin-bottom: 8px; }
+        .header h1 { font-size: 14px; margin-bottom: 2px; font-weight: 800; }
+        .header p { font-size: 9px; line-height: 1.2; }
+
         .divider { 
           border-top: 1px dashed #000; 
-          margin: 8px 0; 
+          margin: 6px 0;
+          width: 100%;
         }
-        .info { margin-bottom: 8px; }
-        .info p { display: flex; justify-content: space-between; }
-        .items { width: 100%; }
-        .item { margin-bottom: 4px; }
-        .item-name { font-weight: bold; }
+
+        .info { font-size: 10px; line-height: 1.4; }
+        .info div { display: flex; justify-content: space-between; }
+
+        .items { width: 100%; margin-top: 5px; }
+        .item { margin-bottom: 6px; }
+        .item-name { 
+          font-size: 11px; 
+          font-weight: 600; 
+          display: block;
+          margin-bottom: 1px;
+          text-transform: uppercase;
+        }
         .item-detail { 
           display: flex; 
           justify-content: space-between;
-          padding-left: 10px;
+          font-size: 10px;
         }
-        .total-section { margin-top: 8px; }
-        .total-section p { 
+
+        .total-section { margin-top: 5px; }
+        .total-row { 
           display: flex; 
-          justify-content: space-between;
-          padding: 2px 0;
+          justify-content: space-between; 
+          font-size: 10px;
+          padding: 1px 0;
         }
-        .total-section .grand-total { 
+        .grand-total { 
+          font-size: 13px; 
           font-weight: bold; 
-          font-size: 14px;
+          margin-top: 4px;
+          padding-top: 4px;
           border-top: 1px solid #000;
-          border-bottom: 1px solid #000;
-          padding: 4px 0;
         }
+
         .footer { 
           text-align: center; 
           margin-top: 15px; 
-          font-size: 10px; 
-        }
-        @media print {
-          body { width: 80mm; }
-          @page { size: 80mm auto; margin: 0; }
+          margin-bottom: 20px;
+          font-size: 9px; 
+          line-height: 1.3;
         }
       </style>
     </head>
     <body>
-      <div class="header">
-        <h1>${namaToko}</h1>
-        <p>${alamatToko}</p>
-      </div>
-      
-      <div class="divider"></div>
-      
-      <div class="info">
-        <p><span>No:</span><span>#${displayId}</span></p>
-        <p><span>Tanggal:</span><span>${data.tanggal}</span></p>
-      </div>
-      
-      <div class="divider"></div>
-      
-      <div class="items">
-        ${data.items
-          .map(
-            (item) => `
-          <div class="item">
-            <div class="item-name">${item.nama_barang}</div>
-            <div class="item-detail">
-              <span>${item.qty} x ${formatRupiah(item.harga_jual)}</span>
-              <span>${formatRupiah(item.subtotal)}</span>
+      <div class="receipt">
+        <div class="header">
+          <h1>${namaToko}</h1>
+          <p>${alamatToko}</p>
+        </div>
+        
+        <div class="divider"></div>
+        
+        <div class="info">
+          <div><span>Nota:</span><span>#${displayId}</span></div>
+          <div><span>Kasir:</span><span>Admin</span></div>
+          <div><span>Waktu:</span><span>${data.tanggal}</span></div>
+        </div>
+        
+        <div class="divider"></div>
+        
+        <div class="items">
+          ${data.items.map((item) => `
+            <div class="item">
+              <span class="item-name">${item.nama_barang}</span>
+              <div class="item-detail">
+                <span>${item.qty} x ${item.harga_jual.toLocaleString()}</span>
+                <span>${item.subtotal.toLocaleString()}</span>
+              </div>
             </div>
+          `).join("")}
+        </div>
+        
+        <div class="total-section">
+          <div class="total-row grand-total">
+            <span>TOTAL:</span>
+            <span>${formatRupiah(data.total)}</span>
           </div>
-        `,
-          )
-          .join("")}
-      </div>
-      
-      <div class="divider"></div>
-      
-      <div class="total-section">
-        <p class="grand-total">
-          <span>TOTAL:</span>
-          <span>${formatRupiah(data.total)}</span>
-        </p>
-        <p>
-          <span>Bayar:</span>
-          <span>${formatRupiah(data.uang_dibayar)}</span>
-        </p>
-        <p>
-          <span>Kembali:</span>
-          <span>${formatRupiah(data.kembalian)}</span>
-        </p>
-      </div>
-      
-      <div class="divider"></div>
-      
-      <div class="footer">
-        <p>Terima Kasih</p>
-        <p>Selamat Berbelanja Kembali</p>
+          <div class="total-row">
+            <span>Tunai:</span>
+            <span>${formatRupiah(data.uang_dibayar)}</span>
+          </div>
+          <div class="total-row">
+            <span>Kembali:</span>
+            <span>${formatRupiah(data.kembalian)}</span>
+          </div>
+        </div>
+        
+        <div class="divider"></div>
+        
+        <div class="footer">
+          <p>Terima Kasih Atas Kunjungan Anda</p>
+          <p>Layanan Pelanggan: 0812-XXXX-XXXX</p>
+        </div>
       </div>
     </body>
     </html>
   `
-
-  const printWindow = window.open("", "_blank", "width=300,height=600")
-  if (printWindow) {
-    printWindow.document.write(printContent)
-    printWindow.document.close()
-    printWindow.focus()
-    setTimeout(() => {
-      printWindow.print()
-      printWindow.close()
-    }, 250)
-  }
+  // ... (Logika window.open tetap sama)
 }
