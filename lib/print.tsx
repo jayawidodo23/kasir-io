@@ -23,17 +23,19 @@ export function printNota(data: NotaData): void {
     <html>
     <head>
       <meta charset="utf-8">
-      <title>Nota #${displayId}</title>
       <style>
-        /* Reset total agar tidak ada margin bawaan browser */
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
+        /* Menggunakan font sans-serif agar lebih tebal dan mudah dibaca */
+        * { 
+          margin: 0; 
+          padding: 0; 
+          box-sizing: border-box; 
+          font-family: 'Arial', sans-serif;
+        }
+
         body { 
-          font-family: 'Arial', sans-serif; 
-          font-size: 11px; 
-          width: 58mm; /* Sesuaikan dengan printer Blueprint 58D */
-          padding: 0;
-          margin: 0;
+          width: 48mm; /* Area cetak efektif Blueprint 58D */
+          margin: 0 auto; 
+          background-color: white;
           color: #000;
         }
 
@@ -42,59 +44,93 @@ export function printNota(data: NotaData): void {
             size: 58mm auto; 
             margin: 0; 
           }
-          body { width: 58mm; }
+          body { 
+            width: 48mm; 
+            margin: 0 auto;
+          }
         }
 
-        .container {
-          padding: 2mm; /* Sedikit padding agar teks tidak terpotong fisik printer */
+        .receipt {
           width: 100%;
+          padding: 0;
         }
 
-        .header { text-align: center; margin-bottom: 8px; }
-        .header h1 { font-size: 14px; font-weight: bold; margin-bottom: 2px; }
-        .header p { font-size: 9px; line-height: 1.2; }
+        .header { 
+          text-align: center; 
+          margin-bottom: 5px; 
+          padding-top: 5mm;
+        }
+        .header h1 { 
+          font-size: 14px; 
+          font-weight: bold; 
+          margin-bottom: 2px;
+          text-transform: uppercase;
+        }
+        .header p { 
+          font-size: 9px; 
+          line-height: 1.1;
+        }
 
         .divider { 
           border-top: 1px dashed #000; 
-          margin: 6px 0; 
+          margin: 5px 0; 
+          width: 100%;
         }
 
-        .info { margin-bottom: 6px; font-size: 10px; }
-        .info p { display: flex; justify-content: space-between; margin-bottom: 2px; }
+        .info { 
+          font-size: 10px; 
+          margin-bottom: 5px;
+        }
+        .info-row {
+          display: flex;
+          justify-content: space-between;
+        }
 
-        .items { width: 100%; }
-        .item { margin-bottom: 5px; }
-        .item-name { font-weight: bold; display: block; text-transform: uppercase; }
+        .items { 
+          width: 100%; 
+        }
+        .item { 
+          margin-bottom: 4px; 
+        }
+        .item-name { 
+          font-size: 10px; 
+          font-weight: bold; 
+          display: block;
+          text-transform: uppercase;
+        }
         .item-detail { 
           display: flex; 
           justify-content: space-between;
-          padding-left: 0; /* Dihapus padding agar space lebih luas */
+          font-size: 10px;
         }
 
-        .total-section { margin-top: 5px; }
-        .total-section p { 
+        .total-section { 
+          margin-top: 5px; 
+        }
+        .total-row { 
           display: flex; 
-          justify-content: space-between;
+          justify-content: space-between; 
+          font-size: 11px;
           padding: 1px 0;
         }
-        .total-section .grand-total { 
+        .grand-total { 
           font-weight: bold; 
           font-size: 12px;
           border-top: 1px solid #000;
-          margin-top: 4px;
-          padding: 4px 0;
+          margin-top: 2px;
+          padding-top: 3px;
         }
 
         .footer { 
           text-align: center; 
-          margin-top: 15px; 
+          margin-top: 10px; 
+          margin-bottom: 10mm; /* Ruang agar tidak terpotong saat sobek */
           font-size: 9px; 
-          line-height: 1.3;
         }
       </style>
     </head>
     <body>
-      <div class="container">
+      <div class="receipt">
         <div class="header">
           <h1>${namaToko}</h1>
           <p>${alamatToko}</p>
@@ -103,34 +139,39 @@ export function printNota(data: NotaData): void {
         <div class="divider"></div>
         
         <div class="info">
-          <p><span>No:</span><span>#${displayId}</span></p>
-          <p><span>Tgl:</span><span>${data.tanggal}</span></p>
+          <div class="info-row">
+            <span>No: #${displayId}</span>
+            <span>${data.tanggal.split(',')[0]}</span>
+          </div>
         </div>
         
         <div class="divider"></div>
         
         <div class="items">
-          ${data.items
-            .map(
-              (item) => `
+          ${data.items.map((item) => `
             <div class="item">
               <span class="item-name">${item.nama_barang}</span>
               <div class="item-detail">
-                <span>${item.qty} x ${formatRupiah(item.harga_jual)}</span>
-                <span>${formatRupiah(item.subtotal)}</span>
+                <span>${item.qty} x ${item.harga_jual.toLocaleString()}</span>
+                <span>${item.subtotal.toLocaleString()}</span>
               </div>
             </div>
-          `,
-            )
-            .join("")}
+          `).join("")}
         </div>
         
         <div class="total-section">
-          <div class="grand-total">
-            <p><span>TOTAL:</span><span>${formatRupiah(data.total)}</span></p>
+          <div class="total-row grand-total">
+            <span>TOTAL:</span>
+            <span>${formatRupiah(data.total)}</span>
           </div>
-          <p><span>Bayar:</span><span>${formatRupiah(data.uang_dibayar)}</span></p>
-          <p><span>Kembali:</span><span>${formatRupiah(data.kembalian)}</span></p>
+          <div class="total-row">
+            <span>Bayar:</span>
+            <span>${formatRupiah(data.uang_dibayar)}</span>
+          </div>
+          <div class="total-row">
+            <span>Kembali:</span>
+            <span>${formatRupiah(data.kembalian)}</span>
+          </div>
         </div>
         
         <div class="divider"></div>
@@ -144,17 +185,15 @@ export function printNota(data: NotaData): void {
     </html>
   `
 
-  // Logika pembuka jendela print (dikembalikan ke versi awal Anda yang stabil)
-  const printWindow = window.open("", "_blank", "width=300,height=600")
+  const printWindow = window.open("", "_blank", "width=400,height=600")
   if (printWindow) {
     printWindow.document.write(printContent)
     printWindow.document.close()
     printWindow.focus()
-    
-    // Memberikan waktu loading untuk CSS sebelum jendela print muncul
     setTimeout(() => {
       printWindow.print()
       printWindow.close()
-    }, 500) // Ditambah ke 500ms agar browser sempat merender layout 58mm
+    }, 500)
   }
 }
+
