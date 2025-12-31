@@ -1,4 +1,4 @@
-// Print Nota via Browser
+// Print Nota via Browser yang disesuaikan
 import type { TransaksiItem } from "./db"
 import { formatRupiah } from "./currency"
 
@@ -23,109 +23,84 @@ export function printNota(data: NotaData): void {
     <html>
     <head>
       <meta charset="utf-8">
+      <title>Nota #${displayId}</title>
       <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body { 
           font-family: 'Arial', sans-serif; 
-          /* Memperbesar ukuran dasar font agar terbaca jelas */
-          font-size: 14px; 
-          width: 384px; /* Lebar standar printer 58mm dalam pixel (48mm efektif) */
+          /* Ukuran font dinaikkan agar lebih jelas */
+          font-size: 13px; 
+          /* Lebar dikunci sedikit di bawah 58mm agar driver tidak error/blank */
+          width: 54mm; 
+          margin: 0;
           color: #000;
-          background: #fff;
         }
 
         @media print {
           @page { 
-            size: 58mm 3276mm; 
+            size: 58mm auto; 
             margin: 0; 
           }
-          body { 
-            width: 384px; 
-          }
+          body { width: 54mm; }
         }
 
-        .receipt-wrapper {
-          padding: 10px;
+        .container {
+          padding: 2mm 1mm; 
           width: 100%;
         }
 
-        .header { 
-          text-align: center; 
-          margin-bottom: 12px; 
-        }
-        .header h1 { 
-          font-size: 18px; /* Nama toko lebih besar */
-          font-weight: bold; 
-          margin-bottom: 4px;
-        }
-        .header p { 
-          font-size: 11px; 
-          line-height: 1.2;
-        }
+        .header { text-align: center; margin-bottom: 8px; }
+        /* Nama Toko Lebih Besar */
+        .header h1 { font-size: 16px; font-weight: bold; margin-bottom: 2px; }
+        .header p { font-size: 10px; line-height: 1.2; }
 
         .divider { 
           border-top: 1px dashed #000; 
-          margin: 8px 0; 
+          margin: 6px 0; 
         }
 
-        .info-table { 
-          width: 100%; 
-          font-size: 12px; 
-          margin-bottom: 8px;
-        }
-        .flex-row {
-          display: flex;
+        .info { margin-bottom: 6px; font-size: 11px; }
+        .info p { display: flex; justify-content: space-between; margin-bottom: 2px; }
+
+        .items { width: 100%; }
+        .item { margin-bottom: 6px; }
+        /* Nama barang lebih tegas */
+        .item-name { font-weight: bold; display: block; text-transform: uppercase; font-size: 12px; }
+        .item-detail { 
+          display: flex; 
           justify-content: space-between;
-          align-items: flex-start;
-          width: 100%;
+          font-size: 12px;
         }
 
-        .items-container {
-          width: 100%;
+        .total-section { margin-top: 5px; }
+        .total-section p { 
+          display: flex; 
+          justify-content: space-between;
+          padding: 1px 0;
+          font-size: 12px;
         }
-        .item-row {
-          margin-bottom: 8px;
-        }
-        .item-name {
-          font-weight: bold;
+        /* Total Akhir Lebih Besar */
+        .total-section .grand-total { 
+          font-weight: bold; 
           font-size: 14px;
-          display: block;
-          margin-bottom: 2px;
-        }
-        .item-details {
-          display: flex;
-          justify-content: space-between;
-          font-size: 13px;
-        }
-
-        .total-section {
-          margin-top: 10px;
-        }
-        .total-row {
-          display: flex;
-          justify-content: space-between;
-          padding: 2px 0;
-          font-size: 13px;
-        }
-        .grand-total {
-          font-size: 16px;
-          font-weight: bold;
-          border-top: 2px solid #000;
-          margin-top: 5px;
-          padding-top: 5px;
+          border-top: 1px solid #000;
+          margin-top: 4px;
+          padding: 4px 0;
         }
 
         .footer { 
           text-align: center; 
-          margin-top: 20px; 
-          margin-bottom: 40px; /* Jarak sobek */
-          font-size: 12px; 
+          margin-top: 15px; 
+          font-size: 10px; 
+          line-height: 1.3;
+          /* Jarak ekstra di bawah agar tidak terpotong saat sobek manual */
+          padding-bottom: 10mm;
         }
       </style>
     </head>
     <body>
-      <div class="receipt-wrapper">
+      <div class="container">
         <div class="header">
           <h1>${namaToko}</h1>
           <p>${alamatToko}</p>
@@ -133,47 +108,42 @@ export function printNota(data: NotaData): void {
         
         <div class="divider"></div>
         
-        <div class="info-table">
-          <div class="flex-row">
-            <span>No: #${displayId}</span>
-            <span>${data.tanggal}</span>
-          </div>
+        <div class="info">
+          <p><span>No:</span><span>#${displayId}</span></p>
+          <p><span>Tgl:</span><span>${data.tanggal}</span></p>
         </div>
         
         <div class="divider"></div>
         
-        <div class="items-container">
-          ${data.items.map((item) => `
-            <div class="item-row">
+        <div class="items">
+          ${data.items
+            .map(
+              (item) => `
+            <div class="item">
               <span class="item-name">${item.nama_barang}</span>
-              <div class="item-details">
-                <span>${item.qty} x ${item.harga_jual.toLocaleString()}</span>
-                <span>${item.subtotal.toLocaleString()}</span>
+              <div class="item-detail">
+                <span>${item.qty} x ${formatRupiah(item.harga_jual)}</span>
+                <span>${formatRupiah(item.subtotal)}</span>
               </div>
             </div>
-          `).join("")}
+          `,
+            )
+            .join("")}
         </div>
         
         <div class="total-section">
-          <div class="total-row grand-total">
-            <span>TOTAL:</span>
-            <span>${formatRupiah(data.total)}</span>
+          <div class="grand-total">
+            <p><span>TOTAL:</span><span>${formatRupiah(data.total)}</span></p>
           </div>
-          <div class="total-row">
-            <span>Bayar:</span>
-            <span>${formatRupiah(data.uang_dibayar)}</span>
-          </div>
-          <div class="total-row">
-            <span>Kembali:</span>
-            <span>${formatRupiah(data.kembalian)}</span>
-          </div>
+          <p><span>Bayar:</span><span>${formatRupiah(data.uang_dibayar)}</span></p>
+          <p><span>Kembali:</span><span>${formatRupiah(data.kembalian)}</span></p>
         </div>
         
         <div class="divider"></div>
         
         <div class="footer">
           <p>Terima Kasih</p>
-          <p>Barang yang sudah dibeli tidak dapat ditukar</p>
+          <p>Selamat Berbelanja Kembali</p>
         </div>
       </div>
     </body>
@@ -184,15 +154,11 @@ export function printNota(data: NotaData): void {
   if (printWindow) {
     printWindow.document.write(printContent)
     printWindow.document.close()
+    printWindow.focus()
     
-    // Memberikan delay agar browser selesai menghitung layout sebelum print dialog
-    printWindow.onload = () => {
-      setTimeout(() => {
-        printWindow.print()
-        printWindow.close()
-      }, 500)
-    }
+    setTimeout(() => {
+      printWindow.print()
+      printWindow.close()
+    }, 500)
   }
 }
-
-
