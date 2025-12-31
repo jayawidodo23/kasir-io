@@ -23,62 +23,48 @@ export function printNota(data: NotaData): void {
     <html>
     <head>
       <meta charset="utf-8">
-      <style>
-        /* Reset & Base Styling */
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        body { 
-          font-family: 'Courier New', monospace; /* Font struk standar */
-          font-size: 12px; /* Ukuran font ideal untuk 58mm */
-          width: 48mm; /* Lebar area cetak efektif printer 58mm */
-          margin: 0;
-          color: #000;
-        }
+     <style>
+  /* Reset dasar agar tidak ada jarak bawaan browser */
+  * { 
+    margin: 0; 
+    padding: 0; 
+    box-sizing: border-box; 
+  }
 
-        @media print {
-          @page { 
-            size: 58mm auto; /* Paksa ukuran kertas ke 58mm */
-            margin: 0; 
-          }
-          body { width: 48mm; } /* Sisakan sedikit margin fisik printer */
-        }
+  @media print {
+    @page { 
+      size: 58mm auto; /* Wajib untuk memberitahu driver printer ukurannya 58mm */
+      margin: 0;       /* Hapus margin kertas */
+    }
+    body { 
+      width: 100%;    /* Gunakan 100% dari lebar yang disediakan driver */
+      margin: 0;
+      padding: 0;
+    }
+  }
 
-        .header { text-align: center; margin-bottom: 5px; }
-        .header h1 { font-size: 14px; font-weight: bold; text-transform: uppercase; }
-        .header p { font-size: 10px; line-height: 1.2; }
+  body { 
+    font-family: 'Courier New', monospace; 
+    font-size: 12px; 
+    width: 58mm;      /* Samakan dengan lebar kertas */
+    color: #000;
+    padding: 2px;     /* Sedikit padding agar tidak mepet besi printer */
+  }
 
-        .divider { 
-          border-top: 1px dashed #000; 
-          margin: 5px 0; 
-          width: 100%;
-        }
+  /* Agar teks memenuhi lebar kertas */
+  .item-detail, .total-row, .info-row {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+  }
 
-        .info { font-size: 11px; margin-bottom: 5px; }
-        .info table { width: 100%; }
+  .divider { 
+    border-top: 1px dashed #000; 
+    margin: 4px 0;
+    width: 100%;
+  }
+</style>
 
-        .items { width: 100%; font-size: 11px; }
-        .item { margin-bottom: 3px; }
-        .item-detail { 
-          display: flex; 
-          justify-content: space-between;
-        }
-
-        .total-section { margin-top: 5px; font-size: 12px; }
-        .total-row { display: flex; justify-content: space-between; padding: 1px 0; }
-        .grand-total { 
-          font-weight: bold; 
-          border-top: 1px dashed #000;
-          margin-top: 3px;
-          padding-top: 3px;
-        }
-
-        .footer { 
-          text-align: center; 
-          margin-top: 15px; 
-          font-size: 10px;
-          line-height: 1.2;
-        }
-      </style>
     </head>
     <body>
       <div class="header">
