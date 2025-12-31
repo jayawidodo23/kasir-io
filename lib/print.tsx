@@ -24,113 +24,108 @@ export function printNota(data: NotaData): void {
     <head>
       <meta charset="utf-8">
       <style>
-        /* Menggunakan font sans-serif agar lebih tebal dan mudah dibaca */
-        * { 
-          margin: 0; 
-          padding: 0; 
-          box-sizing: border-box; 
-          font-family: 'Arial', sans-serif;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
         body { 
-          width: 48mm; /* Area cetak efektif Blueprint 58D */
-          margin: 0 auto; 
-          background-color: white;
+          font-family: 'Arial', sans-serif; 
+          /* Memperbesar ukuran dasar font agar terbaca jelas */
+          font-size: 14px; 
+          width: 384px; /* Lebar standar printer 58mm dalam pixel (48mm efektif) */
           color: #000;
+          background: #fff;
         }
 
         @media print {
           @page { 
-            size: 58mm auto; 
+            size: 58mm 3276mm; 
             margin: 0; 
           }
           body { 
-            width: 48mm; 
-            margin: 0 auto;
+            width: 384px; 
           }
         }
 
-        .receipt {
+        .receipt-wrapper {
+          padding: 10px;
           width: 100%;
-          padding: 0;
         }
 
         .header { 
           text-align: center; 
-          margin-bottom: 5px; 
-          padding-top: 5mm;
+          margin-bottom: 12px; 
         }
         .header h1 { 
-          font-size: 14px; 
+          font-size: 18px; /* Nama toko lebih besar */
           font-weight: bold; 
-          margin-bottom: 2px;
-          text-transform: uppercase;
+          margin-bottom: 4px;
         }
         .header p { 
-          font-size: 9px; 
-          line-height: 1.1;
+          font-size: 11px; 
+          line-height: 1.2;
         }
 
         .divider { 
           border-top: 1px dashed #000; 
-          margin: 5px 0; 
+          margin: 8px 0; 
+        }
+
+        .info-table { 
+          width: 100%; 
+          font-size: 12px; 
+          margin-bottom: 8px;
+        }
+        .flex-row {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
           width: 100%;
         }
 
-        .info { 
-          font-size: 10px; 
-          margin-bottom: 5px;
+        .items-container {
+          width: 100%;
         }
-        .info-row {
+        .item-row {
+          margin-bottom: 8px;
+        }
+        .item-name {
+          font-weight: bold;
+          font-size: 14px;
+          display: block;
+          margin-bottom: 2px;
+        }
+        .item-details {
           display: flex;
           justify-content: space-between;
+          font-size: 13px;
         }
 
-        .items { 
-          width: 100%; 
+        .total-section {
+          margin-top: 10px;
         }
-        .item { 
-          margin-bottom: 4px; 
-        }
-        .item-name { 
-          font-size: 10px; 
-          font-weight: bold; 
-          display: block;
-          text-transform: uppercase;
-        }
-        .item-detail { 
-          display: flex; 
+        .total-row {
+          display: flex;
           justify-content: space-between;
-          font-size: 10px;
+          padding: 2px 0;
+          font-size: 13px;
         }
-
-        .total-section { 
-          margin-top: 5px; 
-        }
-        .total-row { 
-          display: flex; 
-          justify-content: space-between; 
-          font-size: 11px;
-          padding: 1px 0;
-        }
-        .grand-total { 
-          font-weight: bold; 
-          font-size: 12px;
-          border-top: 1px solid #000;
-          margin-top: 2px;
-          padding-top: 3px;
+        .grand-total {
+          font-size: 16px;
+          font-weight: bold;
+          border-top: 2px solid #000;
+          margin-top: 5px;
+          padding-top: 5px;
         }
 
         .footer { 
           text-align: center; 
-          margin-top: 10px; 
-          margin-bottom: 10mm; /* Ruang agar tidak terpotong saat sobek */
-          font-size: 9px; 
+          margin-top: 20px; 
+          margin-bottom: 40px; /* Jarak sobek */
+          font-size: 12px; 
         }
       </style>
     </head>
     <body>
-      <div class="receipt">
+      <div class="receipt-wrapper">
         <div class="header">
           <h1>${namaToko}</h1>
           <p>${alamatToko}</p>
@@ -138,20 +133,20 @@ export function printNota(data: NotaData): void {
         
         <div class="divider"></div>
         
-        <div class="info">
-          <div class="info-row">
+        <div class="info-table">
+          <div class="flex-row">
             <span>No: #${displayId}</span>
-            <span>${data.tanggal.split(',')[0]}</span>
+            <span>${data.tanggal}</span>
           </div>
         </div>
         
         <div class="divider"></div>
         
-        <div class="items">
+        <div class="items-container">
           ${data.items.map((item) => `
-            <div class="item">
+            <div class="item-row">
               <span class="item-name">${item.nama_barang}</span>
-              <div class="item-detail">
+              <div class="item-details">
                 <span>${item.qty} x ${item.harga_jual.toLocaleString()}</span>
                 <span>${item.subtotal.toLocaleString()}</span>
               </div>
@@ -178,7 +173,7 @@ export function printNota(data: NotaData): void {
         
         <div class="footer">
           <p>Terima Kasih</p>
-          <p>Selamat Berbelanja Kembali</p>
+          <p>Barang yang sudah dibeli tidak dapat ditukar</p>
         </div>
       </div>
     </body>
@@ -189,11 +184,15 @@ export function printNota(data: NotaData): void {
   if (printWindow) {
     printWindow.document.write(printContent)
     printWindow.document.close()
-    printWindow.focus()
-    setTimeout(() => {
-      printWindow.print()
-      printWindow.close()
-    }, 500)
+    
+    // Memberikan delay agar browser selesai menghitung layout sebelum print dialog
+    printWindow.onload = () => {
+      setTimeout(() => {
+        printWindow.print()
+        printWindow.close()
+      }, 500)
+    }
   }
 }
+
 
