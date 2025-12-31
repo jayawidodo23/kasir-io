@@ -1,4 +1,4 @@
-// Print Nota via Browser
+// Print Nota via Browser yang disesuaikan untuk kejelasan dan kerapihan
 import type { TransaksiItem } from "./db"
 import { formatRupiah } from "./currency"
 
@@ -25,71 +25,68 @@ export function printNota(data: NotaData): void {
       <meta charset="utf-8">
       <title>Nota #${displayId}</title>
       <style>
-        /* Reset total agar tidak ada margin bawaan browser */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body { 
-          font-family: 'Arial', sans-serif; 
-          font-size: 11px; 
-          width: 58mm; /* Sesuaikan dengan printer Blueprint 58D */
-          padding: 0;
-          margin: 0;
+          font-family: 'Courier New', Courier, monospace; /* Font struk klasik agar lebih rapi */
+          font-size: 12px; 
+          width: 58mm; 
           color: #000;
+          line-height: 1.4;
         }
 
         @media print {
-          @page { 
-            size: 58mm auto; 
-            margin: 0; 
-          }
+          @page { size: 58mm auto; margin: 0; }
           body { width: 58mm; }
         }
 
         .container {
-          padding: 2mm; /* Sedikit padding agar teks tidak terpotong fisik printer */
+          padding: 4mm 2mm; 
           width: 100%;
+          text-align: center; /* Membuat semua konten default ke tengah */
         }
 
-        .header { text-align: center; margin-bottom: 8px; }
-        .header h1 { font-size: 14px; font-weight: bold; margin-bottom: 2px; }
-        .header p { font-size: 9px; line-height: 1.2; }
+        .header { margin-bottom: 10px; }
+        .header h1 { font-size: 16px; font-weight: bold; margin-bottom: 4px; }
+        .header p { font-size: 10px; }
 
         .divider { 
           border-top: 1px dashed #000; 
-          margin: 6px 0; 
+          margin: 8px 0; 
         }
 
-        .info { margin-bottom: 6px; font-size: 10px; }
+        .info { margin-bottom: 10px; font-size: 11px; }
         .info p { display: flex; justify-content: space-between; margin-bottom: 2px; }
 
-        .items { width: 100%; }
-        .item { margin-bottom: 5px; }
-        .item-name { font-weight: bold; display: block; text-transform: uppercase; }
+        .items { width: 100%; text-align: left; } /* Nama barang tetap kiri agar mudah dibaca */
+        .item { margin-bottom: 8px; }
+        .item-name { font-weight: bold; display: block; text-transform: uppercase; font-size: 12px; }
         .item-detail { 
           display: flex; 
           justify-content: space-between;
-          padding-left: 0; /* Dihapus padding agar space lebih luas */
+          font-size: 11px;
         }
 
-        .total-section { margin-top: 5px; }
+        .total-section { margin-top: 10px; }
         .total-section p { 
           display: flex; 
           justify-content: space-between;
-          padding: 1px 0;
+          padding: 2px 0;
+          font-size: 11px;
         }
         .total-section .grand-total { 
           font-weight: bold; 
-          font-size: 12px;
-          border-top: 1px solid #000;
-          margin-top: 4px;
-          padding: 4px 0;
+          font-size: 14px; /* Perbesar total utama */
+          border-top: 1px double #000;
+          border-bottom: 1px double #000;
+          margin: 6px 0;
+          padding: 6px 0;
         }
 
         .footer { 
-          text-align: center; 
-          margin-top: 15px; 
-          font-size: 9px; 
-          line-height: 1.3;
+          margin-top: 20px; 
+          font-size: 10px;
+          font-style: italic;
         }
       </style>
     </head>
@@ -136,7 +133,7 @@ export function printNota(data: NotaData): void {
         <div class="divider"></div>
         
         <div class="footer">
-          <p>Terima Kasih</p>
+          <p>*** Terima Kasih ***</p>
           <p>Selamat Berbelanja Kembali</p>
         </div>
       </div>
@@ -144,17 +141,15 @@ export function printNota(data: NotaData): void {
     </html>
   `
 
-  // Logika pembuka jendela print (dikembalikan ke versi awal Anda yang stabil)
   const printWindow = window.open("", "_blank", "width=300,height=600")
   if (printWindow) {
     printWindow.document.write(printContent)
     printWindow.document.close()
     printWindow.focus()
     
-    // Memberikan waktu loading untuk CSS sebelum jendela print muncul
     setTimeout(() => {
       printWindow.print()
       printWindow.close()
-    }, 500) // Ditambah ke 500ms agar browser sempat merender layout 58mm
+    }, 500)
   }
 }
