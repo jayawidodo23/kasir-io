@@ -1,4 +1,4 @@
-// Print Nota via Browser yang disesuaikan untuk kejelasan dan kerapihan
+// Print Nota via Browser - Versi Font Besar & Rata Tengah
 import type { TransaksiItem } from "./db"
 import { formatRupiah } from "./currency"
 
@@ -28,11 +28,12 @@ export function printNota(data: NotaData): void {
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body { 
-          font-family: 'Courier New', Courier, monospace; /* Font struk klasik agar lebih rapi */
-          font-size: 12px; 
+          /* Menggunakan font Monospace agar angka lurus vertikal & lebih jelas */
+          font-family: 'Courier New', Courier, monospace; 
+          font-size: 14px; /* Ukuran font umum diperbesar */
           width: 58mm; 
           color: #000;
-          line-height: 1.4;
+          line-height: 1.2;
         }
 
         @media print {
@@ -41,30 +42,37 @@ export function printNota(data: NotaData): void {
         }
 
         .container {
-          padding: 4mm 2mm; 
+          padding: 4mm 2mm;
           width: 100%;
-          text-align: center; /* Membuat semua konten default ke tengah */
         }
 
-        .header { margin-bottom: 10px; }
-        .header h1 { font-size: 16px; font-weight: bold; margin-bottom: 4px; }
-        .header p { font-size: 10px; }
+        /* Header Rata Tengah & Font Besar */
+        .header { text-align: center; margin-bottom: 12px; }
+        .header h1 { font-size: 18px; font-weight: bold; margin-bottom: 4px; }
+        .header p { font-size: 11px; }
 
         .divider { 
           border-top: 1px dashed #000; 
           margin: 8px 0; 
         }
 
-        .info { margin-bottom: 10px; font-size: 11px; }
+        .info { margin-bottom: 10px; font-size: 12px; }
         .info p { display: flex; justify-content: space-between; margin-bottom: 2px; }
 
-        .items { width: 100%; text-align: left; } /* Nama barang tetap kiri agar mudah dibaca */
-        .item { margin-bottom: 8px; }
-        .item-name { font-weight: bold; display: block; text-transform: uppercase; font-size: 12px; }
+        .items { width: 100%; }
+        .item { margin-bottom: 10px; }
+        .item-name { 
+          font-weight: bold; 
+          display: block; 
+          text-transform: uppercase; 
+          font-size: 14px; 
+          text-align: center; /* Nama barang rata tengah */
+          margin-bottom: 2px;
+        }
         .item-detail { 
           display: flex; 
           justify-content: space-between;
-          font-size: 11px;
+          font-size: 13px;
         }
 
         .total-section { margin-top: 10px; }
@@ -72,21 +80,23 @@ export function printNota(data: NotaData): void {
           display: flex; 
           justify-content: space-between;
           padding: 2px 0;
-          font-size: 11px;
+          font-size: 13px;
         }
+
+        /* Bagian Total Dibuat Sangat Menonjol */
         .total-section .grand-total { 
           font-weight: bold; 
-          font-size: 14px; /* Perbesar total utama */
-          border-top: 1px double #000;
-          border-bottom: 1px double #000;
-          margin: 6px 0;
+          font-size: 16px;
+          border-top: 2px solid #000;
+          border-bottom: 2px solid #000;
+          margin: 8px 0;
           padding: 6px 0;
         }
 
         .footer { 
-          margin-top: 20px; 
-          font-size: 10px;
-          font-style: italic;
+          text-align: center; 
+          margin-top: 25px; 
+          font-size: 12px; 
         }
       </style>
     </head>
@@ -100,8 +110,8 @@ export function printNota(data: NotaData): void {
         <div class="divider"></div>
         
         <div class="info">
-          <p><span>No:</span><span>#${displayId}</span></p>
-          <p><span>Tgl:</span><span>${data.tanggal}</span></p>
+          <p><span>ID:</span><span>#${displayId}</span></p>
+          <p><span>TGL:</span><span>${data.tanggal}</span></p>
         </div>
         
         <div class="divider"></div>
@@ -113,7 +123,7 @@ export function printNota(data: NotaData): void {
             <div class="item">
               <span class="item-name">${item.nama_barang}</span>
               <div class="item-detail">
-                <span>${item.qty} x ${formatRupiah(item.harga_jual)}</span>
+                <span>${item.qty} x ${formatRupiah(item.harga_jual).replace("Rp ", "")}</span>
                 <span>${formatRupiah(item.subtotal)}</span>
               </div>
             </div>
@@ -126,15 +136,15 @@ export function printNota(data: NotaData): void {
           <div class="grand-total">
             <p><span>TOTAL:</span><span>${formatRupiah(data.total)}</span></p>
           </div>
-          <p><span>Bayar:</span><span>${formatRupiah(data.uang_dibayar)}</span></p>
-          <p><span>Kembali:</span><span>${formatRupiah(data.kembalian)}</span></p>
+          <p><span>BAYAR:</span><span>${formatRupiah(data.uang_dibayar)}</span></p>
+          <p><span>KEMBALI:</span><span>${formatRupiah(data.kembalian)}</span></p>
         </div>
         
         <div class="divider"></div>
         
         <div class="footer">
-          <p>*** Terima Kasih ***</p>
-          <p>Selamat Berbelanja Kembali</p>
+          <p>TERIMA KASIH</p>
+          <p>SUDAH BELANJA DI SINI</p>
         </div>
       </div>
     </body>
