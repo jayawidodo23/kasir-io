@@ -1,4 +1,4 @@
-// Print Nota via Browser yang disesuaikan
+// Print Nota via Browser
 import type { TransaksiItem } from "./db"
 import { formatRupiah } from "./currency"
 
@@ -25,14 +25,14 @@ export function printNota(data: NotaData): void {
       <meta charset="utf-8">
       <title>Nota #${displayId}</title>
       <style>
+        /* Reset total agar tidak ada margin bawaan browser */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body { 
           font-family: 'Arial', sans-serif; 
-          /* Ukuran font dinaikkan agar lebih jelas */
-          font-size: 13px; 
-          /* Lebar dikunci sedikit di bawah 58mm agar driver tidak error/blank */
-          width: 54mm; 
+          font-size: 11px; 
+          width: 58mm; /* Sesuaikan dengan printer Blueprint 58D */
+          padding: 0;
           margin: 0;
           color: #000;
         }
@@ -42,35 +42,33 @@ export function printNota(data: NotaData): void {
             size: 58mm auto; 
             margin: 0; 
           }
-          body { width: 54mm; }
+          body { width: 58mm; }
         }
 
         .container {
-          padding: 2mm 1mm; 
+          padding: 2mm; /* Sedikit padding agar teks tidak terpotong fisik printer */
           width: 100%;
         }
 
         .header { text-align: center; margin-bottom: 8px; }
-        /* Nama Toko Lebih Besar */
-        .header h1 { font-size: 16px; font-weight: bold; margin-bottom: 2px; }
-        .header p { font-size: 10px; line-height: 1.2; }
+        .header h1 { font-size: 14px; font-weight: bold; margin-bottom: 2px; }
+        .header p { font-size: 9px; line-height: 1.2; }
 
         .divider { 
           border-top: 1px dashed #000; 
           margin: 6px 0; 
         }
 
-        .info { margin-bottom: 6px; font-size: 11px; }
+        .info { margin-bottom: 6px; font-size: 10px; }
         .info p { display: flex; justify-content: space-between; margin-bottom: 2px; }
 
         .items { width: 100%; }
-        .item { margin-bottom: 6px; }
-        /* Nama barang lebih tegas */
-        .item-name { font-weight: bold; display: block; text-transform: uppercase; font-size: 12px; }
+        .item { margin-bottom: 5px; }
+        .item-name { font-weight: bold; display: block; text-transform: uppercase; }
         .item-detail { 
           display: flex; 
           justify-content: space-between;
-          font-size: 12px;
+          padding-left: 0; /* Dihapus padding agar space lebih luas */
         }
 
         .total-section { margin-top: 5px; }
@@ -78,12 +76,10 @@ export function printNota(data: NotaData): void {
           display: flex; 
           justify-content: space-between;
           padding: 1px 0;
-          font-size: 12px;
         }
-        /* Total Akhir Lebih Besar */
         .total-section .grand-total { 
           font-weight: bold; 
-          font-size: 14px;
+          font-size: 12px;
           border-top: 1px solid #000;
           margin-top: 4px;
           padding: 4px 0;
@@ -92,10 +88,8 @@ export function printNota(data: NotaData): void {
         .footer { 
           text-align: center; 
           margin-top: 15px; 
-          font-size: 10px; 
+          font-size: 9px; 
           line-height: 1.3;
-          /* Jarak ekstra di bawah agar tidak terpotong saat sobek manual */
-          padding-bottom: 10mm;
         }
       </style>
     </head>
@@ -150,15 +144,17 @@ export function printNota(data: NotaData): void {
     </html>
   `
 
-  const printWindow = window.open("", "_blank", "width=400,height=600")
+  // Logika pembuka jendela print (dikembalikan ke versi awal Anda yang stabil)
+  const printWindow = window.open("", "_blank", "width=300,height=600")
   if (printWindow) {
     printWindow.document.write(printContent)
     printWindow.document.close()
     printWindow.focus()
     
+    // Memberikan waktu loading untuk CSS sebelum jendela print muncul
     setTimeout(() => {
       printWindow.print()
       printWindow.close()
-    }, 500)
+    }, 500) // Ditambah ke 500ms agar browser sempat merender layout 58mm
   }
 }
