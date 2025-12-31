@@ -66,7 +66,7 @@ export function printNota(data: NotaData): void {
           display: block; 
           text-transform: uppercase; 
           font-size: 14px; 
-          text-align: center; /* Nama barang rata tengah */
+          text-align: left; /* Nama barang rata tengah */
           margin-bottom: 2px;
         }
         .item-detail { 
