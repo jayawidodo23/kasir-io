@@ -1,4 +1,4 @@
-// Print Nota via Browser - Versi Font Besar & Rata Tengah
+// Print Nota via Browser - Versi Penekanan Visual (Bold & Font Size)
 import type { TransaksiItem } from "./db"
 import { formatRupiah } from "./currency"
 
@@ -28,9 +28,8 @@ export function printNota(data: NotaData): void {
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body { 
-          /* Menggunakan font Monospace agar angka lurus vertikal & lebih jelas */
           font-family: 'Courier New', Courier, monospace; 
-          font-size: 14px; /* Ukuran font umum diperbesar */
+          font-size: 13px; 
           width: 58mm; 
           color: #000;
           line-height: 1.2;
@@ -41,63 +40,62 @@ export function printNota(data: NotaData): void {
           body { width: 58mm; }
         }
 
-        .container {
-          padding: 4mm 2mm;
-          width: 100%;
-        }
+        .container { padding: 4mm 2mm; width: 100%; }
 
-        /* Header Rata Tengah & Font Besar */
-        .header { text-align: center; margin-bottom: 12px; }
+        .header { text-align: left; margin-bottom: 12px; }
         .header h1 { font-size: 18px; font-weight: bold; margin-bottom: 4px; }
-        .header p { font-size: 11px; }
+        .header p { font-size: 10px; }
 
-        .divider { 
-          border-top: 1px dashed #000; 
-          margin: 8px 0; 
-        }
+        .divider { border-top: 1px dashed #000; margin: 8px 0; }
 
-        .info { margin-bottom: 10px; font-size: 12px; }
+        /* Tanggal dibuat Bold */
+        .info { margin-bottom: 10px; font-size: 13px; font-weight: bold; }
         .info p { display: flex; justify-content: space-between; margin-bottom: 2px; }
 
         .items { width: 100%; }
-        .item { margin-bottom: 10px; }
+        .item { margin-bottom: 12px; }
+        
+        /* Nama Item diperbesar agar beda dengan harga */
         .item-name { 
           font-weight: bold; 
           display: block; 
           text-transform: uppercase; 
-          font-size: 14px; 
-          text-align: left; /* Nama barang rata tengah */
-          margin-bottom: 2px;
+          font-size: 16px; 
+          margin-bottom: 3px;
         }
+        
+        /* Detail/Harga dibuat Bold */
         .item-detail { 
           display: flex; 
           justify-content: space-between;
           font-size: 13px;
+          font-weight: bold; 
         }
 
         .total-section { margin-top: 10px; }
+        
+        /* Bayar & Kembali dibuat Bold */
         .total-section p { 
           display: flex; 
           justify-content: space-between;
           padding: 2px 0;
-          font-size: 13px;
+          font-size: 14px;
+          font-weight: bold; 
         }
 
-        /* Bagian Total Dibuat Sangat Menonjol */
+        /* Total dibuat paling besar & menonjol */
         .total-section .grand-total { 
-          font-weight: bold; 
-          font-size: 16px;
           border-top: 2px solid #000;
           border-bottom: 2px solid #000;
           margin: 8px 0;
-          padding: 6px 0;
+          padding: 8px 0;
+        }
+        .total-section .grand-total p {
+          font-size: 20px; /* Ukuran paling besar */
+          font-weight: 900;
         }
 
-        .footer { 
-          text-align: center; 
-          margin-top: 25px; 
-          font-size: 12px; 
-        }
+        .footer { text-align: left; margin-top: 25px; font-size: 11px; }
       </style>
     </head>
     <body>
@@ -144,7 +142,7 @@ export function printNota(data: NotaData): void {
         
         <div class="footer">
           <p>TERIMA KASIH</p>
-          <p>SUDAH BELANJA DI SINI</p>
+          <p>SELAMAT BERBELANJA KEMBALI</p>
         </div>
       </div>
     </body>
