@@ -95,7 +95,7 @@ export function printNota(data: NotaData): void {
           font-weight: 900;
         }
 
-        .footer { text-align: left; margin-top: 25px; font-size: 11px; }
+        .footer { text-align: left; margin-top: 25px; font-size: 16px; }
       </style>
     </head>
     <body>
