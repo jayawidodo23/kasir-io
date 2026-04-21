@@ -49,7 +49,7 @@ export function printNota(data: NotaData): void {
         .divider { border-top: 1px dashed #000; margin: 8px 0; }
 
         /* Tanggal dibuat Bold */
-        .info { margin-bottom: 10px; font-size: 13px; font-weight: bold; }
+        .info { margin-bottom: 10px; font-size: 15px; font-weight: bold; }
         .info p { display: flex; justify-content: space-between; margin-bottom: 2px; }
 
         .items { width: 100%; }
